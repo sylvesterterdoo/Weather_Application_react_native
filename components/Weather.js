@@ -26,11 +26,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
     width: "100%",
-    marginTop: 90,
-    marginBottom: 55,
+    marginTop: 250,
   },
   headerContainer: {
-    flex: 1,
     alignItems: "center",
     justifyContent: "flex-end",
   },

@@ -14,23 +14,26 @@ import SelectedLocationWeather from "./screens/SelectedLocationWeatherScreen";
 const Stack = createNativeStackNavigator();
 
 export default function App() {
- //<Stack.Screen 
-          //  name="CurrentWeatherScreen" 
-          //  component={CurrentWeatherScreen}
-          //  options = {{title: "Current Weather Screen"}}
-          ///>
+  /*
+          <Stack.Screen 
+            name="CurrentWeatherScreen" 
+            component={CurrentWeatherScreen}
+            options = {{title: "Current Weather Screen"}}
+          />
+  */
+
   return (
     <PaperProvider>
       <StatusBar style="dark" /> 
       <NavigationContainer>
         <Stack.Navigator screenOptions={screenOptions}>
-          
           <Stack.Screen
-            name="SelectedLocationWeather" 
-            component={SelectedLocationWeather}
-            options={{title: "Display Selected Weather Screen"}}
-          />
-        </Stack.Navigator> 
+              name="SelectedLocationWeather" 
+              component={SelectedLocationWeather}
+              options={{title: "Display Selected Weather Screen"}}
+            />
+
+            </Stack.Navigator> 
       </NavigationContainer>
     </PaperProvider>
   );
