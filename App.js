@@ -1,46 +1,52 @@
-//import { useEffect, useState } from "react";
-//import { API_KEY } from "./utils/WeatherAPIKey";
-//import Weather from "./components/Weather";
-//import * as Location from "expo-location";
-import { Text, View } from "react-native";
-import { StatusBar } from "react-native";
-import { PaperProvider } from "react-native-paper"; 
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { NavigationContainer } from "@react-navigation/native"
+import React, { useState, useEffect } from 'react';
+import { StatusBar } from 'react-native';
+import { PaperProvider } from 'react-native-paper';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
 
-import CurrentWeatherScreen from "./screens/CurrentWeatherScreen";
-import SelectedLocationWeather from "./screens/SelectedLocationWeatherScreen";
+import CurrentWeatherScreen from './screens/CurrentWeatherScreen';
+import SelectedLocationWeatherScreen from './screens/SelectedLocationWeatherScreen';
+import ShowSavedLocations from './screens/ShowSavedLocations';
 
-const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 export default function App() {
-  /*
-          <Stack.Screen 
-            name="CurrentWeatherScreen" 
-            component={CurrentWeatherScreen}
-            options = {{title: "Current Weather Screen"}}
-          />
-  */
+
+  function AppTabs() {
+    return (
+      <Tab.Navigator screenOptions={screenOptions} initialRouteName="CurrentWeatherScreen">
+        <Tab.Screen
+          name="CurrentWeatherScreen"
+          component={CurrentWeatherScreen} 
+          options={{ title: 'Current Weather Screen' }}
+        />
+        <Tab.Screen
+          name="SelectedLocationWeatherScreen"
+          component={SelectedLocationWeatherScreen} 
+          options={{ title: 'Display Selected Weather Screen' }}
+        />
+        <Tab.Screen
+          name="ShowSavedLocations"
+          component={ShowSavedLocations} 
+          options={{ title: 'Saved Location' }}
+          initialParams={{ refresh: true }} 
+        />
+      </Tab.Navigator>
+    );
+  }
 
   return (
     <PaperProvider>
-      <StatusBar style="dark" /> 
+      <StatusBar style="dark" />
       <NavigationContainer>
-        <Stack.Navigator screenOptions={screenOptions}>
-          <Stack.Screen
-              name="SelectedLocationWeather" 
-              component={SelectedLocationWeather}
-              options={{title: "Display Selected Weather Screen"}}
-            />
-
-            </Stack.Navigator> 
+        <AppTabs />
       </NavigationContainer>
     </PaperProvider>
   );
 }
 
 const screenOptions = {
-  headerTintColor: "#282120",
-  headerStyle: { backgroundColor: "#FAD02C" },
-  headerTitleStyle: { color: "#282120" },
+  headerTintColor: '#282120',
+  headerStyle: { backgroundColor: '#FAD02C' },
+  headerTitleStyle: { color: '#282120' },
 };
