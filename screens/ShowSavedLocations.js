@@ -4,6 +4,8 @@ import { Button } from 'react-native-paper';
 import { getSavedLocations, deleteLocation } from '../utils/LocationHelper';
 import { useFocusEffect } from '@react-navigation/native';
 
+import { API_KEY } from '../utils/WeatherAPIKey';
+
 const ShowSavedLocations = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [locations, setLocations] = useState([]);
@@ -12,28 +14,59 @@ const ShowSavedLocations = () => {
     fetchLocations();
   }, []);
 
-  const fetchLocations = () => {
-    getSavedLocations()
-      .then((result) => {
-        setLocations(result);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching locations:', error);
-        setIsLoading(false);
-      });
+  const fetchLocations = async () => {
+    try {
+      const result = await getSavedLocations();
+      console.log('hey')
+      console.log(result);
+      const tempWeather = await Promise.all(result.map(async (location) => {
+        try {
+          const geoRes = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${location.location}&count=10&language=en&format=json`
+          );
+          const geoJson = await geoRes.json();
+          const locationResult = geoJson['results'][0];
+          const { longitude, latitude } = locationResult;
+
+          const weatherRes = await fetch(
+            `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&APPID=${API_KEY}&units=metric`
+          );
+          const weatherJson = await weatherRes.json();
+
+          return {
+            temperature: weatherJson.main.temp,
+            locationName: weatherJson.name,
+            weatherCondition: weatherJson.weather[0].main,
+            id: location.id // Assuming you have an id property in your location objects
+          };
+        } catch (error) {
+          console.log(error);
+          return null;
+        }
+      }));
+
+      setLocations(tempWeather.filter(location => location !== null));
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching locations:', error);
+      setIsLoading(false);
+    }
   };
 
-  const handleDeleteLocation = (id) => {
-    deleteLocation(id)
-      .then(() => fetchLocations())
-      .catch((error) => console.error('Error deleting location:', error));
+  const handleDeleteLocation = async (id) => {
+    try {
+      await deleteLocation(id);
+      await fetchLocations();
+    } catch (error) {
+      console.error('Error deleting location:', error);
+    }
   };
 
   const renderLocations = () => {
     return locations.map((location, index) => (
       <View key={index} style={styles.row}>
-        <Text>{location.location}</Text>
+        <Text>{location.locationName}</Text>
+        <Text>{location.temperature}</Text>
         <Button
           mode="contained"
           onPress={() => handleDeleteLocation(location.id)}
@@ -59,7 +92,12 @@ const ShowSavedLocations = () => {
     );
   }
 
-  return <View style={styles.container}>{renderLocations()}</View>;
+  return <View style={styles.container}>
+     <Text>Location</Text>
+     <Text>Temperature</Text>
+    
+    {renderLocations()}
+    </View>;
 };
 
 const styles = StyleSheet.create({
