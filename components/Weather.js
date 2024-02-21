@@ -5,12 +5,12 @@ const Weather = ({ weatherData }) => {
   return (
     <View style={styles.weatherContainer}>
       <View style={styles.headerContainer}>
-        <Image
+        {/* <Image
           source={{
             uri: `http://openweathermap.org/img/wn/${weatherData.conditionIcon}@2x.png`,
           }}
           style={{ width: 120, height: 120 }}
-        />
+        /> */}
         <Text style={styles.tempText}>{weatherData.locationName}</Text>
       </View>
       <View style={styles.bodyContainer}>

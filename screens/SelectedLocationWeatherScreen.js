@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import Weather from "../components/Weather";
-import * as SQLite from 'expo-sqlite';
-import { API_KEY } from "../utils/WeatherAPIKey";
+import { saveLocation } from "../utils/LocationHelper";
 
-const SelectedLocationWeatherScreen = ({ navigation }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [inputedLocation, setInputedLocation] = useState('Halifax');
+import { API_KEY } from '../utils/WeatherAPIKey';
+
+const SelectedLocationWeatherScreen = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [inputedLocation, setInputedLocation] = useState('');
   const [error, setError] = useState('');
   const [weatherData, setWeatherData] = useState({
     temperature: 0,
@@ -15,30 +16,10 @@ const SelectedLocationWeatherScreen = ({ navigation }) => {
     weatherCondition: '',
     conditionIcon: '',
   });
-  const [locations, setLocations] = useState([]);
-  const [showSaveButton, setShowSaveButton] = useState(true);
-
-  const db = SQLite.openDatabase('location.db');
-
-  useEffect(() => {
-    initializeDatabase();
-  }, []);
-
-  const initializeDatabase = () => {
-    db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS locations (id INTEGER PRIMARY KEY AUTOINCREMENT, location TEXT)');
-      tx.executeSql('SELECT * FROM locations', null,
-        (_, resultSet) => {
-          setLocations(resultSet.rows._array);
-        },
-        (_, error) => console.log(error)
-      );
-    });
-  };
 
   const fetchWeather = () => {
     setIsLoading(true);
-    setShowSaveButton(true)
+    setError('');
     fetch(
       `https://geocoding-api.open-meteo.com/v1/search?name=${inputedLocation}&count=10&language=en&format=json`
     )
@@ -53,32 +34,27 @@ const SelectedLocationWeatherScreen = ({ navigation }) => {
       })
       .then(res => res.json())
       .then(json => {
+        print(json)
         setWeatherData({
           temperature: json.main.temp,
           locationName: json.name,
           weatherCondition: json.weather[0].main,
           conditionIcon: json.weather[0].icon,
         });
-        setIsLoading(false);
       })
       .catch(err => {
         console.log(err);
-        setError(true);
+        setError('Error fetching weather data');
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
-  const addLocation = () => {
-    setShowSaveButton(false);
-    db.transaction(tx => {
-      tx.executeSql('INSERT INTO locations (location) values (?)', [inputedLocation],
-        (_, resultSet) => {
-          const updatedLocations = [...locations, { id: resultSet.insertId, name: inputedLocation }];
-          setLocations(updatedLocations);
-          setInputedLocation('');
-        },
-        (_, error) => console.log(error)
-      );
-    });
+  const handleSaveLocation = () => {
+    saveLocation(inputedLocation);
+    setInputedLocation('');
+    setError('');
   };
 
   return (
@@ -93,20 +69,18 @@ const SelectedLocationWeatherScreen = ({ navigation }) => {
           mode="contained"
           onPress={fetchWeather}
         > Enter </Button>
+
+
         {isLoading ? (
           <Text style={styles.loadingText}>Fetching the weather data...</Text>
         ) : (
           <>
-            <Text>{weatherData.locationName}</Text>
-            <Text>{weatherData.temperature}</Text>
-            <Text>{weatherData.weatherCondition}</Text>
-            <Text>{weatherData.conditionIcon}</Text>
-            {showSaveButton &&
-              <Button
-                mode="contained"
-                onPress={addLocation}
-              > Save Location </Button>
-            }
+            <Weather weatherData={weatherData} />
+            {error ? <Text>{error}</Text> : null}
+            <Button
+              mode="contained"
+              onPress={handleSaveLocation}
+            > Save Location </Button>
           </>
         )}
       </View>
@@ -115,13 +89,6 @@ const SelectedLocationWeatherScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    width: "100%",
-  },
   loadingText: {
     color: "black"
   },
