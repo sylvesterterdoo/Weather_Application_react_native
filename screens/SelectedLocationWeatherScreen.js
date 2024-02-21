@@ -7,7 +7,7 @@ import { saveLocation } from "../utils/LocationHelper";
 import { API_KEY } from '../utils/WeatherAPIKey';
 
 const SelectedLocationWeatherScreen = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLocationEntered, setIsLocationEntered] = useState(false);
   const [inputedLocation, setInputedLocation] = useState('');
   const [error, setError] = useState('');
   const [weatherData, setWeatherData] = useState({
@@ -16,10 +16,18 @@ const SelectedLocationWeatherScreen = () => {
     weatherCondition: '',
     conditionIcon: '',
   });
+  const [showSaveButton, setShowSaveButton] = useState(true);
+  const [countLocations, setCountLocations ] = useState(0);
 
+  const MAX_SAVE = 4;
   const fetchWeather = () => {
-    setIsLoading(true);
+    setIsLocationEntered(true);
     setError('');
+    if (countLocations > MAX_SAVE) {
+      setShowSaveButton(false);
+    } else {
+      setShowSaveButton(true);
+    }
     fetch(
       `https://geocoding-api.open-meteo.com/v1/search?name=${inputedLocation}&count=10&language=en&format=json`
     )
@@ -34,7 +42,7 @@ const SelectedLocationWeatherScreen = () => {
       })
       .then(res => res.json())
       .then(json => {
-        print(json)
+        // console.log(json)
         setWeatherData({
           temperature: json.main.temp,
           locationName: json.name,
@@ -47,13 +55,17 @@ const SelectedLocationWeatherScreen = () => {
         setError('Error fetching weather data');
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsLocationEntered(true);
       });
   };
 
   const handleSaveLocation = () => {
+    console.log(`Saved : ${countLocations}`)
+    setCountLocations(countLocations + 1);
+    setShowSaveButton(false)
     saveLocation(inputedLocation);
     setInputedLocation('');
+    setIsLocationEntered(false);
     setError('');
   };
 
@@ -71,16 +83,24 @@ const SelectedLocationWeatherScreen = () => {
         > Enter </Button>
 
 
-        {isLoading ? (
-          <Text style={styles.loadingText}>Fetching the weather data...</Text>
+        {!isLocationEntered ? (
+          <View>
+            <Text style={styles.loadingText}>Enter location name to fetch data</Text>
+            <Text style={styles.loadingText}>Location like (Halifax, Dartmouth, Toronto)</Text>
+            <Text style={styles.loadingText}>You can save only 4 locations</Text>
+          </View>
         ) : (
           <>
-            <Weather weatherData={weatherData} />
+            {/* <Weather weatherData={weatherData} /> */}
+            <Text>{weatherData.name}</Text>
+            <Text>{weatherData.temperature}</Text>
             {error ? <Text>{error}</Text> : null}
-            <Button
-              mode="contained"
-              onPress={handleSaveLocation}
-            > Save Location </Button>
+            {showSaveButton &&
+              <Button
+                mode="contained"
+                onPress={handleSaveLocation}
+              > Save Location </Button>
+            }
           </>
         )}
       </View>
