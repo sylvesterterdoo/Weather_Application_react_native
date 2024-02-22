@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import * as Location from 'expo-location';
 import Weather from '../components/Weather';
-import { saveLocation } from '../utils/LocationHelper';
 
 import { API_KEY } from '../utils/WeatherAPIKey';
 
 const CurrentWeatherScreen = () => {
 
-  const [isCurrentSaved, setIsCurrentSaved] = useState(false)
   const [isLoading, setIsLoading] = useState(true);
   const [weatherData, setWeatherData] = useState({
     temperature: 0,
@@ -43,9 +41,6 @@ const CurrentWeatherScreen = () => {
           conditionIcon: json.weather[0].icon,
         });
         setIsLoading(false);
-        // if (!isCurrentSaved) {
-        //   saveLocation(json.name);
-        // }
       })
       .catch((err) => {
         console.log(err);
