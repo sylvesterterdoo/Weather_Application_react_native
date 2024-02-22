@@ -190,6 +190,8 @@ const SelectedLocationWeatherScreen = ({navigation}) => {
   }, [weatherData]);
 
   useEffect(() => {
+    // console.log(`saved location Length: ${savedLocations.length}`)
+    console.log(savedLocations)
     if (savedLocations.length >= MAX_SAVE) {
       setShowSaveButton(false);
     }
@@ -243,6 +245,7 @@ const SelectedLocationWeatherScreen = ({navigation}) => {
       return;
     }
 
+    console.log(`saved location Length: ${savedLocations.length}`)
     if (savedLocations.length >= MAX_SAVE) {
       setError('Maximum number of saved location reached');
       return;
