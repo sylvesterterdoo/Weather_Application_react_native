@@ -12,6 +12,7 @@
     "@expo/vector-icons": "^13.0.0",
     "@react-navigation/bottom-tabs": "^6.5.12",
     "@react-navigation/native-stack": "^6.9.18",
+    "events": "^3.3.0",
     "expo": "^50.0.6",
     "expo-location": "~15.0.1",
     "expo-sqlite": "~13.2.2",

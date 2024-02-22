@@ -21,6 +21,9 @@ export const saveLocation = (location) => {
 export const getSavedLocations = () => {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
+      tx.executeSql(
+        'CREATE TABLE IF NOT EXISTS locations (id INTEGER PRIMARY KEY AUTOINCREMENT, location TEXT)'
+      );
       tx.executeSql('SELECT * FROM locations', null,
         (_, resultSet) => {
           const locations = resultSet.rows._array;

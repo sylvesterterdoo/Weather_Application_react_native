@@ -43,9 +43,9 @@ const CurrentWeatherScreen = () => {
           conditionIcon: json.weather[0].icon,
         });
         setIsLoading(false);
-        if (!isCurrentSaved) {
-          saveLocation(json.name);
-        }
+        // if (!isCurrentSaved) {
+        //   saveLocation(json.name);
+        // }
       })
       .catch((err) => {
         console.log(err);
